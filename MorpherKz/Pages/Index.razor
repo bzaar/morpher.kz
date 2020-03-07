@@ -1,12 +1,14 @@
-﻿@page "/"
+@page "/"
 
 @using Morpher.WebService.V3
 @using Morpher.WebService.V3.Qazaq
 
+@inject IJSRuntime jsRuntime
+
 <h1>Склонение по падежам на казахском языке</h1>
 
 <p>
-    <input @oninput="OnInput" />
+    <input id="word" @oninput="OnInput" />
 </p>
 
 @if (_exception != null)
@@ -19,59 +21,76 @@ else if (_error != null)
 }
 else if (_declensionResult != null)
 {
-<table class="table">
-    <thead>
-        <tr>
-            <th></th>
-            <th></th>
-            <th>Менiң</th>
-            <th>Біздiң</th>
-            <th>Сенiң</th>
-            <th>Сіздiң</th>
-            <th>Оның</th>
-        </tr>
-        <tr>
-            <th colspan="4"></th>
-            <th>Сендердiң</th>
-            <th>Сіздердiң</th>
-            <th>Олардың</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var c in Cases)
-        {
-        <tr>
-            <th rowspan="2">@c.Key</th>
-            <td>@c.Value(_declensionResult)</td>
-            <td>@c.Value(_declensionResult.FirstPerson)</td>
-            <td>@c.Value(_declensionResult.FirstPersonPlural)</td>
-            <td>@c.Value(_declensionResult.SecondPerson)</td>
-            <td>@c.Value(_declensionResult.SecondPersonRespectful)</td>
-            <td>@c.Value(_declensionResult.ThirdPerson)</td>
-        </tr>
-        <tr>
-            <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural))</td>
-            <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural.FirstPerson))</td>
-            <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural.FirstPersonPlural))</td>
-            <td>@c.Value(_declensionResult.SecondPersonPlural)</td>
-            <td>@c.Value(_declensionResult.SecondPersonRespectfulPlural)</td>
-            <td>@c.Value(_declensionResult.ThirdPersonPlural)</td>
-        </tr>
-        }
-    </tbody>
-</table>
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th>Менiң</th>
+                <th>Біздiң</th>
+                <th>Сенiң</th>
+                <th>Сіздiң</th>
+                <th>Оның</th>
+            </tr>
+            <tr>
+                <th colspan="4"></th>
+                <th>Сендердiң</th>
+                <th>Сіздердiң</th>
+                <th>Олардың</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Cases)
+            {
+                <tr>
+                    <th rowspan="2">@c.Key</th>
+                    <td>@c.Value(_declensionResult)</td>
+                    <td>@c.Value(_declensionResult.FirstPerson)</td>
+                    <td>@c.Value(_declensionResult.FirstPersonPlural)</td>
+                    <td>@c.Value(_declensionResult.SecondPerson)</td>
+                    <td>@c.Value(_declensionResult.SecondPersonRespectful)</td>
+                    <td>@c.Value(_declensionResult.ThirdPerson)</td>
+                </tr>
+                <tr>
+                    <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural))</td>
+                    <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural.FirstPerson))</td>
+                    <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural.FirstPersonPlural))</td>
+                    <td>@c.Value(_declensionResult.SecondPersonPlural)</td>
+                    <td>@c.Value(_declensionResult.SecondPersonRespectfulPlural)</td>
+                    <td>@c.Value(_declensionResult.ThirdPersonPlural)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 else
 {
-    <p> 
-        Введите слово для склонения, например, <em>программист</em>.
+    <p>
+        Введите слово для склонения, например,
+        <a @onclick="OnClick">
+            <u><em>@TargetWord</em></u> .
+        </a>
     </p>
 }
 
 @code {
 
-    static readonly Dictionary<string, Func<DeclensionForms, string>> Cases = new Dictionary<string, Func<DeclensionForms, string>>
+    readonly string TargetWord = "Програмиист";
+
+    protected override void OnAfterRender(bool firstRender)
     {
+        selectInput();
+    }
+    protected async Task selectInput()
+    {
+        await jsRuntime.InvokeAsync<object>("focusElement", "word");
+    }
+    protected async Task setValue(string text)
+    {
+        await jsRuntime.InvokeAsync<object>("SetValueById", "word", text);
+    }
+    static readonly Dictionary<string, Func<DeclensionForms, string>> Cases = new Dictionary<string, Func<DeclensionForms, string>>
+{
         {"Nom", f => f.Nominative },
         {"Gen", f => f.Genitive},
         {"Dat", f => f.Dative },
@@ -89,12 +108,21 @@ else
 
     void OnInput(ChangeEventArgs e)
     {
+        UpdateTable((string)e.Value);
+    }
+    void OnClick()
+    {
+        setValue(TargetWord);
+        UpdateTable(TargetWord);
+    }
+    void UpdateTable(string text)
+    {
         try
         {
             _error = null;
             _exception = null;
             _declensionResult = null;
-            _declensionResult = _morpher.Qazaq.Parse((string) e.Value);
+            _declensionResult = _morpher.Qazaq.Parse(text);
         }
         catch (ArgumentNotQazaqException)
         {
@@ -102,7 +130,7 @@ else
         }
         catch (ArgumentEmptyException)
         {
-            
+
         }
         catch (Exception ex)
         {
