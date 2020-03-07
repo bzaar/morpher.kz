@@ -4,7 +4,7 @@
 @using Morpher.WebService.V3
 @using Morpher.WebService.V3.Qazaq
 
-<h1>Morpher.kz</h1>
+<h1>Склонение по падежам на казахском языке</h1>
 
 <p>Введите слово для склонения:</p>
 
@@ -12,7 +12,12 @@
 
 @if (exception != null)
 {
-<p>@exception</p>
+<p class="alert-danger">@exception</p>
+}
+
+@if (error != null)
+{
+    <p>@error</p>
 }
 
 @if (_declensionResult != null)
@@ -26,6 +31,9 @@
             <th>Сенiң</th>
             <th>Сіздiң</th>
             <th>Оның</th>
+        </tr>
+        <tr>
+            <th colspan="2"></th>
             <th>Біздiң</th>
             <th>Сендердiң</th>
             <th>Сіздердiң</th>
@@ -34,7 +42,7 @@
     </thead>
     <tbody>
         @foreach (var c in cases)
-            {
+        {
         <tr>
             <td>@c.Key</td>
             <td>@c.Value(_declensionResult)</td>
@@ -42,12 +50,15 @@
             <td>@c.Value(_declensionResult.SecondPerson)</td>
             <td>@c.Value(_declensionResult.SecondPersonRespectful)</td>
             <td>@c.Value(_declensionResult.ThirdPerson)</td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
             <td>@c.Value(_declensionResult.FirstPersonPlural)</td>
             <td>@c.Value(_declensionResult.SecondPersonPlural)</td>
             <td>@c.Value(_declensionResult.SecondPersonRespectfulPlural)</td>
             <td>@c.Value(_declensionResult.ThirdPersonPlural)</td>
         </tr>
-            }
+        }
     </tbody>
 </table>
 }
@@ -69,21 +80,22 @@
 
     MorpherClient _morpher = new MorpherClient();
     Exception exception;
-
-    protected override void OnInitialized()
-    {
-
-    }
+    string error;
 
     void OnInput(ChangeEventArgs e)
     {
         try
         {
+            error = null;
             exception = null;
             _declensionResult = null;
             _declensionResult = _morpher.Qazaq.Parse((string) e.Value);
         }
-        catch(Exception ex)
+        catch (ArgumentNotQazaqException)
+        {
+            error = "Желательно по-казахски";
+        }
+        catch (Exception ex)
         {
             exception = ex;
         }
