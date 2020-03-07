@@ -67,15 +67,17 @@ else
 {
     <p>
         Введите слово для склонения, например,
-        <a @onclick="OnClick">
-            <u><em>@TargetWord</em></u> .
-        </a>
+        @foreach (var word in TargetWords)
+        {
+            <u @onclick="@(e => OnClick(word))"><em>@word</em></u>
+        }
+        .
     </p>
 }
 
 @code {
 
-    readonly string TargetWord = "Програмиист";
+    readonly string[] TargetWords = { "Програмиист", "Инжинер", "Архитектор" };
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -110,10 +112,10 @@ else
     {
         UpdateTable((string)e.Value);
     }
-    void OnClick()
+    void OnClick(string word)
     {
-        setValue(TargetWord);
-        UpdateTable(TargetWord);
+        setValue(word);
+        UpdateTable(word);
     }
     void UpdateTable(string text)
     {
