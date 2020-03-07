@@ -64,7 +64,7 @@ else if (_declensionResult != null)
 else
 {
     <p> 
-        Введите слово для склонения:
+        Введите слово для склонения, например, <em>программист</em>.
     </p>
 }
 
@@ -98,7 +98,7 @@ else
         }
         catch (ArgumentNotQazaqException)
         {
-            _error = "Желательно по-казахски";
+            _error = "Желательно по-казахски.";
         }
         catch (ArgumentEmptyException)
         {
