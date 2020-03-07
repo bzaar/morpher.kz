@@ -1,26 +1,23 @@
 ﻿@page "/"
 
-
 @using Morpher.WebService.V3
 @using Morpher.WebService.V3.Qazaq
 
 <h1>Склонение по падежам на казахском языке</h1>
 
-<p>Введите слово для склонения:</p>
+<p>
+    <input @oninput="OnInput" />
+</p>
 
-<input @oninput="OnInput" />
-
-@if (exception != null)
+@if (_exception != null)
 {
-<p class="alert-danger">@exception</p>
+<pre class="alert-danger">@_exception</pre>
 }
-
-@if (error != null)
+else if (_error != null)
 {
-    <p>@error</p>
+    <p>@_error</p>
 }
-
-@if (_declensionResult != null)
+else if (_declensionResult != null)
 {
 <table class="table">
     <thead>
@@ -28,32 +25,34 @@
             <th></th>
             <th></th>
             <th>Менiң</th>
+            <th>Біздiң</th>
             <th>Сенiң</th>
             <th>Сіздiң</th>
             <th>Оның</th>
         </tr>
         <tr>
-            <th colspan="2"></th>
-            <th>Біздiң</th>
+            <th colspan="4"></th>
             <th>Сендердiң</th>
             <th>Сіздердiң</th>
             <th>Олардың</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var c in cases)
+        @foreach (var c in Cases)
         {
         <tr>
-            <td>@c.Key</td>
+            <td rowspan="2">@c.Key</td>
             <td>@c.Value(_declensionResult)</td>
             <td>@c.Value(_declensionResult.FirstPerson)</td>
+            <td>@c.Value(_declensionResult.FirstPersonPlural)</td>
             <td>@c.Value(_declensionResult.SecondPerson)</td>
             <td>@c.Value(_declensionResult.SecondPersonRespectful)</td>
             <td>@c.Value(_declensionResult.ThirdPerson)</td>
         </tr>
         <tr>
-            <td colspan="2"></td>
-            <td>@c.Value(_declensionResult.FirstPersonPlural)</td>
+            <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural))</td>
+            <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural.FirstPerson))</td>
+            <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural.FirstPersonPlural))</td>
             <td>@c.Value(_declensionResult.SecondPersonPlural)</td>
             <td>@c.Value(_declensionResult.SecondPersonRespectfulPlural)</td>
             <td>@c.Value(_declensionResult.ThirdPersonPlural)</td>
@@ -62,10 +61,16 @@
     </tbody>
 </table>
 }
+else
+{
+    <p> 
+        Введите слово для склонения:
+    </p>
+}
 
 @code {
 
-    Dictionary<string, Func<DeclensionForms, string>> cases = new Dictionary<string, Func<DeclensionForms, string>>
+    static readonly Dictionary<string, Func<DeclensionForms, string>> Cases = new Dictionary<string, Func<DeclensionForms, string>>
     {
         {"Nom", f => f.Nominative },
         {"Gen", f => f.Genitive},
@@ -79,25 +84,29 @@
     DeclensionResult _declensionResult;
 
     MorpherClient _morpher = new MorpherClient();
-    Exception exception;
-    string error;
+    Exception _exception;
+    string _error;
 
     void OnInput(ChangeEventArgs e)
     {
         try
         {
-            error = null;
-            exception = null;
+            _error = null;
+            _exception = null;
             _declensionResult = null;
             _declensionResult = _morpher.Qazaq.Parse((string) e.Value);
         }
         catch (ArgumentNotQazaqException)
         {
-            error = "Желательно по-казахски";
+            _error = "Желательно по-казахски";
+        }
+        catch (ArgumentEmptyException)
+        {
+            
         }
         catch (Exception ex)
         {
-            exception = ex;
+            _exception = ex;
         }
     }
 }
