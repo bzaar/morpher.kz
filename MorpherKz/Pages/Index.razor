@@ -41,7 +41,7 @@ else if (_declensionResult != null)
         @foreach (var c in Cases)
         {
         <tr>
-            <td rowspan="2">@c.Key</td>
+            <th rowspan="2">@c.Key</th>
             <td>@c.Value(_declensionResult)</td>
             <td>@c.Value(_declensionResult.FirstPerson)</td>
             <td>@c.Value(_declensionResult.FirstPersonPlural)</td>
