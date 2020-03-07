@@ -3,10 +3,12 @@
 @using Morpher.WebService.V3
 @using Morpher.WebService.V3.Qazaq
 
+@inject IJSRuntime JSRuntime;
+
 <h1>Склонение по падежам на казахском языке</h1>
 
 <p>
-    <input @oninput="OnInput" />
+    <input @oninput="OnInput" id="searchInput"/>
 </p>
 
 @if (_exception != null)
@@ -64,7 +66,7 @@ else if (_declensionResult != null)
 else
 {
     <p> 
-        Введите слово для склонения, например, <em>программист</em>.
+        Введите слово для склонения, например, <span class="target"><em>программист</em></span>, <span class="target"><em>программист2</em></span>.
     </p>
 }
 
@@ -107,6 +109,15 @@ else
         catch (Exception ex)
         {
             _exception = ex;
+        }
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("funcions.focusSearchInput");
+            await JSRuntime.InvokeVoidAsync("funcions.addEvent");
         }
     }
 }
