@@ -2,7 +2,8 @@
 
 @using Morpher.WebService.V3
 @using Morpher.WebService.V3.Qazaq
-@inject IJSRuntime JSRuntime
+
+@inject IJSRuntime JSRuntime;
 
 <h1>Склонение по падежам на казахском языке</h1>
 
@@ -12,7 +13,7 @@
 
 @if (_exception != null)
 {
-    <pre class="alert-danger">@_exception</pre>
+<pre class="alert-danger">@_exception</pre>
 }
 else if (_error != null)
 {
@@ -20,8 +21,8 @@ else if (_error != null)
 }
 else if (_declensionResult != null)
 {
-    <table class="table">
-        <thead>
+<table class="table">
+    <thead>
         <tr>
             <th></th>
             <th></th>
@@ -37,34 +38,34 @@ else if (_declensionResult != null)
             <th>Сіздердiң</th>
             <th>Олардың</th>
         </tr>
-        </thead>
-        <tbody>
+    </thead>
+    <tbody>
         @foreach (var c in Cases)
         {
-            <tr>
-                <th rowspan="2">@c.Key</th>
-                <td>@c.Value(_declensionResult)</td>
-                <td>@c.Value(_declensionResult.FirstPerson)</td>
-                <td>@c.Value(_declensionResult.FirstPersonPlural)</td>
-                <td>@c.Value(_declensionResult.SecondPerson)</td>
-                <td>@c.Value(_declensionResult.SecondPersonRespectful)</td>
-                <td>@c.Value(_declensionResult.ThirdPerson)</td>
-            </tr>
-            <tr>
-                <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural))</td>
-                <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural.FirstPerson))</td>
-                <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural.FirstPersonPlural))</td>
-                <td>@c.Value(_declensionResult.SecondPersonPlural)</td>
-                <td>@c.Value(_declensionResult.SecondPersonRespectfulPlural)</td>
-                <td>@c.Value(_declensionResult.ThirdPersonPlural)</td>
-            </tr>
+        <tr>
+            <th rowspan="2">@c.Key</th>
+            <td>@c.Value(_declensionResult)</td>
+            <td>@c.Value(_declensionResult.FirstPerson)</td>
+            <td>@c.Value(_declensionResult.FirstPersonPlural)</td>
+            <td>@c.Value(_declensionResult.SecondPerson)</td>
+            <td>@c.Value(_declensionResult.SecondPersonRespectful)</td>
+            <td>@c.Value(_declensionResult.ThirdPerson)</td>
+        </tr>
+        <tr>
+            <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural))</td>
+            <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural.FirstPerson))</td>
+            <td>@(_declensionResult.Plural == null ? "" : c.Value(_declensionResult.Plural.FirstPersonPlural))</td>
+            <td>@c.Value(_declensionResult.SecondPersonPlural)</td>
+            <td>@c.Value(_declensionResult.SecondPersonRespectfulPlural)</td>
+            <td>@c.Value(_declensionResult.ThirdPersonPlural)</td>
+        </tr>
         }
-        </tbody>
-    </table>
+    </tbody>
+</table>
 }
 else
 {
-    <p>
+    <p> 
         Введите слово для склонения, например, <span class="target"><em>программист</em></span>, <span class="target"><em>программист2</em></span>.
     </p>
 }
@@ -73,9 +74,9 @@ else
 
     static readonly Dictionary<string, Func<DeclensionForms, string>> Cases = new Dictionary<string, Func<DeclensionForms, string>>
     {
-        {"Nom", f => f.Nominative},
+        {"Nom", f => f.Nominative },
         {"Gen", f => f.Genitive},
-        {"Dat", f => f.Dative},
+        {"Dat", f => f.Dative },
         {"Acc", f => f.Accusative},
         {"Ins", f => f.Instrumental},
         {"Abl", f => f.Ablative},
@@ -103,13 +104,14 @@ else
         }
         catch (ArgumentEmptyException)
         {
+            
         }
         catch (Exception ex)
         {
             _exception = ex;
         }
     }
-
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

@@ -3,15 +3,18 @@ window.funcions = {
         document.getElementById('searchInput').focus();
     },
     addEvent: function () {
-        document.querySelectorAll('.target')
-            .forEach(span => span.addEventListener('click', function (event) {
-                event.preventDefault();
+        const spans = document.querySelectorAll('.target');
+        
+        spans.forEach(span => span.style.cursor = 'pointer');
+        
+        spans.forEach(span => span.addEventListener('click', function (event) {
+            event.preventDefault();
 
-                document.querySelectorAll('.target')
-                    .forEach(span => span.style.textDecorationLine = 'none');
+            document.querySelectorAll('.target')
+                .forEach(span => span.style.textDecorationLine = 'none');
 
-                span.style.textDecorationLine = 'underline';
-                document.getElementById('searchInput').value = span.innerText.trim();
-            }));
+            span.style.textDecorationLine = 'underline';
+            document.getElementById('searchInput').value = span.innerText.trim();
+        }));
     }
 };
