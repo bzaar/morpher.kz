@@ -1,4 +1,4 @@
-﻿@page "/"
+@page "/"
 @namespace MorpherKz.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
@@ -17,7 +17,16 @@
     <app>
         @(await Html.RenderComponentAsync<App>(RenderMode.ServerPrerendered))
     </app>
-
+    <script type="text/javascript">
+        window.focusElement = (id) => {
+            var element = document.getElementById(id);
+            element.focus();
+        }
+        window.SetValueById = (id, value) => {
+            var element = document.getElementById(id);
+            element.value = value;
+        }
+    </script>
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>
