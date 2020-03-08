@@ -67,21 +67,19 @@ else
 {
     <p>
         Введите слово для склонения, например,
-        @foreach (var word in TargetWords)
-        {
-            <u @onclick="@(e => OnClick(word))"><em>@word</em></u>
-        }
-        .
+        <a @onclick="OnClick">
+            <u><em>@TargetWord</em></u> .
+        </a>
     </p>
 }
 
 @code {
 
-    readonly string[] TargetWords = { "Програмиист", "Инжинер", "Архитектор" };
+    readonly string TargetWord = "Програмиист";
 
-    protected override void OnAfterRender(bool firstRender)
+    async protected override void OnAfterRender(bool firstRender)
     {
-        selectInput();
+        await selectInput();
     }
     protected async Task selectInput()
     {
@@ -112,10 +110,10 @@ else
     {
         UpdateTable((string)e.Value);
     }
-    void OnClick(string word)
+    async void OnClick()
     {
-        setValue(word);
-        UpdateTable(word);
+        await setValue(TargetWord);
+        UpdateTable(TargetWord);
     }
     void UpdateTable(string text)
     {
