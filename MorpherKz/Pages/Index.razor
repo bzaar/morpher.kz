@@ -112,14 +112,12 @@ else
     {
         UpdateTable((string)e.Value);
     }
-    void OnClick(string word)
+    async void OnClick(string word)
     {
-        setValue(word);
-        UpdateTable(word);
-        setValue(word);
-        UpdateTable(word);
+        await UpdateTable(word);
+        await setValue(word);
     }
-    void UpdateTable(string text)
+    async Task UpdateTable(string text)
     {
         try
         {
