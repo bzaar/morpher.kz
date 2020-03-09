@@ -97,7 +97,10 @@ else if (_declensionResult != null)
 
     protected override async void OnAfterRender(bool firstRender)
     {
-        await SelectInput();
+        if (firstRender)
+        {
+            await SelectInput();
+        }
     }
 
     private async Task SelectInput()
