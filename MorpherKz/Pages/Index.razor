@@ -1,12 +1,25 @@
-﻿@page "/"
+@page "/"
 
 @using Morpher.WebService.V3
 @using Morpher.WebService.V3.Qazaq
 
+@inject IJSRuntime JsRuntime
+
 <h1>Программа склонения по падежам на казахском языке</h1>
 
 <p>
-    <input @oninput="OnInput" /> @_number
+    <input id="word" @oninput="OnInput" /> @_number
+</p>
+
+<p>
+    Введите слово для склонения, например:
+    @{
+        var examples = Examples[DateTime.Now.Minute / 5 % Examples.Length];   
+    } 
+    @foreach (var word in examples)
+    {
+        <a href="#" class="example" @onclick="@(e => OnClick(word))">@word</a>
+    }
 </p>
 
 @if (_exception != null)
@@ -19,64 +32,84 @@ else if (_error != null)
 }
 else if (_declensionResult != null)
 {
-<table class="table">
-    <thead>
-        @if (_declensionResult.Plural != null)
-        {
+    <table class="table">
+        <thead>
+            @if (_declensionResult.Plural != null)
+            {    
             <tr>
                 <th colspan="3"></th>
-                <th>Менiң</th> <th>Біздiң</th> <th>Сенiң</th> <th>Сіздiң</th> <th>Оның</th>
+                <th>Менiң</th>
+                <th>Біздiң</th>
+                <th>Сенiң</th>
+                <th>Сіздiң</th>
+                <th>Оның</th>
             </tr>
             <tr>
                 <th colspan="5"></th>
-                <th>Сендердiң</th> <th>Сіздердiң</th> <th>Олардың</th>
+                <th>Сендердiң</th>
+                <th>Сіздердiң</th><th>Олардың</th>
             </tr>
         }
         else
         {
             <tr>
                 <th colspan="3"></th>
-                <th>Менiң</th> <th>Біздiң</th> <th>Сенiң, Сендердiң</th> <th>Сіздiң, Сендердiң</th> <th>Оның, Олардың</th>
-            </tr>
-        }
-    </thead>
-    <tbody>
-        @foreach (var c in Cases)
-        {
-            <tr>
-                <th rowspan="@(_declensionResult.Plural == null ? 1 : 2)">@c.Key.Item2</th>
-                <th rowspan="@(_declensionResult.Plural == null ? 1 : 2)"><em>@c.Key.Item1</em></th>
-                <td>@c.Value(_declensionResult)</td>
-                <td>@c.Value(_declensionResult.FirstPerson)</td>
-                <td>@c.Value(_declensionResult.FirstPersonPlural)</td>
-                <td>@c.Value(_declensionResult.SecondPerson)</td>
-                <td>@c.Value(_declensionResult.SecondPersonRespectful)</td>
-                <td>@c.Value(_declensionResult.ThirdPerson)</td>
-            </tr>
-            @if (_declensionResult.Plural != null)
+                <th>Менiң</th> <th>Біздiң</th> <th>Сенiң, Сендердiң</th> <th>Сіздiң, Сендердiң</th> <th>Оның,Олардың</th>
+            </tr>}
+        </thead>
+        <tbody>
+            @foreach (var c in Cases)
             {
                 <tr>
-                    <td>@(c.Value(_declensionResult.Plural))</td>
-                    <td>@(c.Value(_declensionResult.Plural.FirstPerson))</td>
-                    <td>@(c.Value(_declensionResult.Plural.FirstPersonPlural))</td>
+                    <th rowspan="@(_declensionResult.Plural == null ? 1 : 2)">@c.Key.Item2</th>
+                <th rowspan="@(_declensionResult.Plural == null ? 1 : 2)"><em>@c.Key.Item1</em></th>
+                    <td>@c.Value(_declensionResult)</td>
+                    <td>@c.Value(_declensionResult.FirstPerson)</td>
+                    <td>@c.Value(_declensionResult.FirstPersonPlural)</td>
+                    <td>@c.Value(_declensionResult.SecondPerson)</td>
+                    <td>@c.Value(_declensionResult.SecondPersonRespectful)</td>
+                    <td>@c.Value(_declensionResult.ThirdPerson)</td>
+                </tr>
+                @if (_declensionResult.Plural != null)
+            {
+                <tr>
+                    <td>@c.Value(_declensionResult.Plural)</td>
+                    <td>@c.Value(_declensionResult.Plural.FirstPerson)</td>
+                    <td>@c.Value(_declensionResult.Plural.FirstPersonPlural)</td>
                     <td>@c.Value(_declensionResult.SecondPersonPlural)</td>
                     <td>@c.Value(_declensionResult.SecondPersonRespectfulPlural)</td>
                     <td>@c.Value(_declensionResult.ThirdPersonPlural)</td>
-                </tr>
+                </tr>}
             }
-        }
-    </tbody>
-</table>
-}
-else
-{
-    <p> 
-        Введите слово для склонения, например, <em>программист</em>.
-    </p>
+        </tbody>
+    </table>
 }
 
 @code {
 
+    static readonly string[][] Examples =
+    {
+        new [] { "бағдарламашы", "маманы", "бас бухгалтер" },
+        new [] { "қыз", "әже", "отбасы", "мұғалім" },
+        new [] { "Алматы қаласы", "парк", "аю" },
+        new [] { "доллар", "айлар", "принтер", "парктер" },
+    };
+
+    protected override async void OnAfterRender(bool firstRender)
+    {
+        await SelectInput();
+    }
+
+    private async Task SelectInput()
+    {
+        await JsRuntime.InvokeAsync<object>("focusElement", "word");
+    }
+
+    private async Task SetValue(string text)
+    {
+        await JsRuntime.InvokeAsync<object>("SetValueById", "word", text);
+    }
+    
     static readonly Dictionary<(string, string), Func<DeclensionForms, string>> Cases = new Dictionary<(string, string), Func<DeclensionForms, string>>
     {
         {("кім? не?", "Атау"), f => f.Nominative },
@@ -88,7 +121,7 @@ else
         {("кіммен? немен? қалай?", "Көмектес"), f => f.Instrumental},
     };
 
-    readonly MorpherClient _morpher = new MorpherClient(Guid.Parse("5579c931-a00c-43cf-a679-e83d28fa078f"));
+    readonly MorpherClient _morpher = new MorpherClient(Guid.Parse("ba4fc26c-b689-4207-a8d9-7542f2ee287d"));
     
     DeclensionResult _declensionResult;
     Exception _exception;
@@ -97,13 +130,24 @@ else
 
     void OnInput(ChangeEventArgs e)
     {
-        _number = null;
-        _error = null;
-        _exception = null;
-        _declensionResult = null;
+        UpdateTable((string)e.Value);
+    }
+    
+    async void OnClick(string word)
+    {
+        UpdateTable(word);
+        await SetValue(word);
+    }
+    
+    void UpdateTable(string text)
+    {
         try
         {
-            _declensionResult = _morpher.Qazaq.Parse((string) e.Value);
+            _number = null;
+            _error = null;
+            _exception = null;
+            _declensionResult = null;
+            _declensionResult = _morpher.Qazaq.Parse(text);
             _number = "Число: " + (_declensionResult.Plural != null ? "единственное" : "множественное");
         }
         catch (ArgumentNotQazaqException)
@@ -112,7 +156,7 @@ else
         }
         catch (ArgumentEmptyException)
         {
-            
+
         }
         catch (Exception ex)
         {

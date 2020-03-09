@@ -6,6 +6,12 @@ html, body {
 
 h1 {
     margin-bottom: 0.5em;
+    white-space: nowrap;
+}
+
+.example {
+    font-style: italic;
+    margin-left: 1ex;
 }
 
 a, .btn-link {
