@@ -114,10 +114,10 @@ else
     }
     async void OnClick(string word)
     {
-        await UpdateTable(word);
+        UpdateTable(word);
         await setValue(word);
     }
-    async Task UpdateTable(string text)
+    void UpdateTable(string text)
     {
         try
         {
