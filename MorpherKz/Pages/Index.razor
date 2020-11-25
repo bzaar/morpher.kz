@@ -86,8 +86,18 @@ else if (_declensionResult != null)
     </table>
 }
 
+<div id="vk_comments"></div>
+
 @code {
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JsRuntime.InvokeVoidAsync("display_vk_comments");
+        }
+    }
+    
     static readonly string[][] Examples =
     {
         new [] { "бағдарламашы", "маманы", "бас бухгалтер" },
