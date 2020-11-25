@@ -259,3 +259,4 @@ Java/Java/out/
 *.jfm
 
 *.tlog
+/MorpherKz/.config/dotnet-tools.json
